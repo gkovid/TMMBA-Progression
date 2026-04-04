@@ -466,7 +466,7 @@ export default function App() {
           <div className="card calendar-card">
             <iframe
               title="Assignment Deadlines Calendar"
-              src="https://calendar.google.com/calendar/embed?src=ccbonsd41ih8soareip63hogg4baojke%40import.calendar.google.com&ctz=America%2FLos_Angeles"
+              src="https://calendar.google.com/calendar/embed?src=ccbonsd41ih8soareip63hogg4baojke%40import.calendar.google.com&ctz=America%2FLos_Angeles&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0"
               style={{ border: 0, width: "100%", height: "700px", borderRadius: "24px" }}
               frameBorder="0"
               scrolling="no"
