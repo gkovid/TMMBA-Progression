@@ -563,7 +563,11 @@ export default function App() {
             </p>
           </div>
         </header>
-
+        <div className={`banner ${filteredDeadlineSummary.dueTodayCount > 0 ? "banner-warning" : "banner-neutral"}`}>
+          {filteredDeadlineSummary.dueTodayCount > 0
+            ? `⚠️ You have ${filteredDeadlineSummary.dueTodayCount} assignment(s) due today`
+            : "✅ No assignments due today"}
+        </div>
         <section className="stats-grid">
           <StatCard
             title="Quarter Progress"

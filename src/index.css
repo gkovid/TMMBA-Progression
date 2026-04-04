@@ -519,3 +519,22 @@ button {
     grid-template-columns: 1fr;
   }
 }
+
+.banner {
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  font-weight: 700;
+}
+
+.banner-warning {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #fdba74;
+}
+
+.banner-neutral {
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
