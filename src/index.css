@@ -575,3 +575,9 @@ button {
 .deadline-card-completed .deadline-title {
   text-decoration: line-through;
 }
+
+.banner-danger {
+  background: #fef2f2;
+  color: #b91c1c;
+  border: 1px solid #fca5a5;
+}
