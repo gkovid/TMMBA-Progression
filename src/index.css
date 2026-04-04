@@ -334,3 +334,8 @@ button {
     font-size: 1.7rem;
   }
 }
+
+.calendar-card {
+  padding: 12px;
+  overflow: hidden;
+}

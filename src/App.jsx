@@ -455,6 +455,24 @@ export default function App() {
             })}
           </div>
         </section>
+        <section>
+          <div className="section-header">
+            <h2>Assignment Deadlines</h2>
+            <p className="section-subtitle">
+              Live view from your Google Calendar.
+            </p>
+          </div>
+
+          <div className="card calendar-card">
+            <iframe
+              title="Assignment Deadlines Calendar"
+              src="https://calendar.google.com/calendar/embed?src=ccbonsd41ih8soareip63hogg4baojke%40import.calendar.google.com&ctz=America%2FLos_Angeles"
+              style={{ border: 0, width: "100%", height: "700px", borderRadius: "24px" }}
+              frameBorder="0"
+              scrolling="no"
+            />
+          </div>
+        </section>
       </div>
     </div>
   );
