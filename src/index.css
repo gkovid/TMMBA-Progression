@@ -339,3 +339,83 @@ button {
   padding: 12px;
   overflow: hidden;
 }
+
+.deadlines-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.deadline-card {
+  padding: 20px;
+}
+
+.deadlines-empty {
+  padding: 20px;
+  margin-bottom: 24px;
+  color: #64748b;
+}
+
+.deadline-topline {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.deadline-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.deadline-date {
+  margin-top: 8px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.deadline-meta {
+  margin-top: 8px;
+  color: #64748b;
+  font-size: 0.92rem;
+}
+
+.deadline-link {
+  display: inline-block;
+  margin-top: 14px;
+  color: #4338ca;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.deadline-link:hover {
+  text-decoration: underline;
+}
+
+.urgency-past-due {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+.urgency-today {
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.urgency-tomorrow {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.urgency-this-week {
+  background: #ecfeff;
+  color: #0f766e;
+}
+
+.urgency-upcoming {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+}

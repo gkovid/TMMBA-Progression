@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const schedule = [
   {
@@ -209,6 +209,12 @@ const courseCredits = {
   "TMMBA 554": 2,
 };
 
+const CALENDAR_ID =
+  "ccbonsd41ih8soareip63hogg4baojke@import.calendar.google.com";
+
+// Replace this with your restricted browser API key
+const GOOGLE_CALENDAR_API_KEY = "AIzaSyDC93XY__VQbEUysm_7Qu39HtspvKDnXWQ";
+
 function toDateTime(dateStr, timeStr) {
   return new Date(`${dateStr} ${timeStr}`);
 }
@@ -259,13 +265,97 @@ function StatusBadge({ status }) {
   return <span className={`badge badge-${status}`}>{status}</span>;
 }
 
+function formatDeadlineDate(dateString) {
+  const d = new Date(dateString);
+  return d.toLocaleString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function getUrgencyLabel(startDateTime) {
+  const now = new Date();
+  const due = new Date(startDateTime);
+  const diffMs = due - now;
+  const diffDays = diffMs / (1000 * 60 * 60 * 24);
+
+  if (diffMs < 0) return "Past due";
+  if (diffDays < 1) return "Today";
+  if (diffDays < 2) return "Tomorrow";
+  if (diffDays <= 7) return "This week";
+  return "Upcoming";
+}
+
 export default function App() {
   const [showOnlyUpcoming, setShowOnlyUpcoming] = useState(false);
+  const [deadlines, setDeadlines] = useState([]);
+  const [deadlinesLoading, setDeadlinesLoading] = useState(true);
+  const [deadlinesError, setDeadlinesError] = useState("");
   const now = new Date();
 
   const sortedSchedule = [...schedule].sort(
     (a, b) => toDateTime(a.date, a.start) - toDateTime(b.date, b.start)
   );
+
+  useEffect(() => {
+    async function loadDeadlines() {
+      if (!GOOGLE_CALENDAR_API_KEY || GOOGLE_CALENDAR_API_KEY === "PASTE_YOUR_API_KEY_HERE") {
+        setDeadlinesLoading(false);
+        setDeadlinesError("Add your Google Calendar API key to enable upcoming deadlines.");
+        return;
+      }
+
+      try {
+        setDeadlinesLoading(true);
+        setDeadlinesError("");
+
+        const timeMin = new Date().toISOString();
+        const params = new URLSearchParams({
+          key: GOOGLE_CALENDAR_API_KEY,
+          singleEvents: "true",
+          orderBy: "startTime",
+          timeMin,
+          maxResults: "8",
+        });
+
+        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+          CALENDAR_ID
+        )}/events?${params.toString()}`;
+
+        const res = await fetch(url);
+        if (!res.ok) {
+          throw new Error(`Calendar API error: ${res.status}`);
+        }
+
+        const data = await res.json();
+        const items = (data.items || [])
+          .filter((item) => item.start?.dateTime || item.start?.date)
+          .map((item) => {
+            const start = item.start.dateTime || `${item.start.date}T11:59:00`;
+            return {
+              id: item.id,
+              title: item.summary || "Untitled assignment",
+              start,
+              location: item.location || "",
+              description: item.description || "",
+              link: item.htmlLink || "",
+            };
+          });
+
+        setDeadlines(items);
+      } catch (err) {
+        setDeadlinesError("Couldn’t load upcoming deadlines.");
+        console.error(err);
+      } finally {
+        setDeadlinesLoading(false);
+      }
+    }
+
+    loadDeadlines();
+  }, []);
 
   const overall = useMemo(() => {
     const total = sortedSchedule.length;
@@ -454,6 +544,56 @@ export default function App() {
               );
             })}
           </div>
+        </section>
+        <section>
+          <div className="section-header">
+            <h2>Upcoming Deadlines</h2>
+            <p className="section-subtitle">
+              Your next assignments from the Google Calendar feed.
+            </p>
+          </div>
+
+          {deadlinesLoading ? (
+            <div className="card deadlines-empty">Loading deadlines...</div>
+          ) : deadlinesError ? (
+            <div className="card deadlines-empty">{deadlinesError}</div>
+          ) : deadlines.length === 0 ? (
+            <div className="card deadlines-empty">No upcoming deadlines found.</div>
+          ) : (
+            <div className="deadlines-grid">
+              {deadlines.map((item) => (
+                <div className="card deadline-card" key={item.id}>
+                  <div className="deadline-topline">
+                    <span
+                      className={`pill urgency-${getUrgencyLabel(item.start)
+                        .toLowerCase()
+                        .replace(" ", "-")}`}
+                    >
+                      {getUrgencyLabel(item.start)}
+                    </span>
+                  </div>
+
+                  <div className="deadline-title">{item.title}</div>
+                  <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
+
+                  {item.location ? (
+                    <div className="deadline-meta">{item.location}</div>
+                  ) : null}
+
+                  {item.link ? (
+                    <a
+                      className="deadline-link"
+                      href={item.link}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      Open in Google Calendar
+                    </a>
+                  ) : null}
+                </div>
+              ))}
+            </div>
+          )}
         </section>
         <section>
           <div className="section-header">
