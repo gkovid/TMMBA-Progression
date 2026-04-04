@@ -246,7 +246,15 @@ function getCourseFromTitle(title) {
 }
 
 function toDateTime(dateStr, timeStr) {
-  return new Date(`${dateStr} ${timeStr}`);
+  const [year, month, day] = dateStr.split("-").map(Number);
+
+  const [time, modifier] = timeStr.trim().split(" ");
+  let [hours, minutes] = time.split(":").map(Number);
+
+  if (modifier === "PM" && hours !== 12) hours += 12;
+  if (modifier === "AM" && hours === 12) hours = 0;
+
+  return new Date(year, month - 1, day, hours, minutes, 0, 0);
 }
 
 function formatDate(dateStr) {
@@ -261,6 +269,10 @@ function formatDate(dateStr) {
 function getSessionStatus(now, item) {
   const start = toDateTime(item.date, item.start);
   const end = toDateTime(item.date, item.end);
+
+  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+    return "upcoming";
+  }
 
   if (now < start) return "upcoming";
   if (now > end) return "done";
@@ -303,6 +315,7 @@ function formatDeadlineDate(dateString) {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    timeZone: "America/Los_Angeles",
   });
 }
 
@@ -447,9 +460,16 @@ export default function App() {
     );
 
     let calendarProgress = 0;
-    if (now <= start) calendarProgress = 0;
-    else if (now >= end) calendarProgress = 100;
-    else calendarProgress = Math.round(((now - start) / (end - start)) * 100);
+
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) {
+      calendarProgress = 0;
+    } else if (now <= start) {
+      calendarProgress = 0;
+    } else if (now >= end) {
+      calendarProgress = 100;
+    } else {
+      calendarProgress = Math.round(((now - start) / (end - start)) * 100);
+    }
 
     return {
       total,
@@ -753,12 +773,12 @@ export default function App() {
                 {filteredDeadlines.map((item) => (
                   <div
                     className={`card deadline-card ${getUrgencyLabel(item.start) === "Past due"
-                        ? "urgency-past-due-card"
-                        : getUrgencyLabel(item.start) === "Today"
-                          ? "urgency-today-card"
-                          : getUrgencyLabel(item.start) === "This week"
-                            ? "urgency-this-week-card"
-                            : ""
+                      ? "urgency-past-due-card"
+                      : getUrgencyLabel(item.start) === "Today"
+                        ? "urgency-today-card"
+                        : getUrgencyLabel(item.start) === "This week"
+                          ? "urgency-this-week-card"
+                          : ""
                       }`}
                     key={item.id}
                   >
