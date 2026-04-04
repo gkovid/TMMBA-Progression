@@ -215,6 +215,36 @@ const CALENDAR_ID =
 // Replace this with your restricted browser API key
 const GOOGLE_CALENDAR_API_KEY = "AIzaSyDC93XY__VQbEUysm_7Qu39HtspvKDnXWQ";
 
+function getCourseFromTitle(title) {
+  const text = (title || "").toLowerCase();
+
+  if (
+    text.includes("managerial accounting") ||
+    text.includes("accounting") ||
+    text.includes("tmmba 517")
+  ) {
+    return "Accounting";
+  }
+
+  if (
+    text.includes("customer experience") ||
+    text.includes("cx") ||
+    text.includes("tmmba 528")
+  ) {
+    return "Customer Experience";
+  }
+
+  if (
+    text.includes("entrepreneurial practicum") ||
+    text.includes("practicum") ||
+    text.includes("tmmba 554")
+  ) {
+    return "Practicum";
+  }
+
+  return "Other";
+}
+
 function toDateTime(dateStr, timeStr) {
   return new Date(`${dateStr} ${timeStr}`);
 }
@@ -289,11 +319,55 @@ function getUrgencyLabel(startDateTime) {
   return "Upcoming";
 }
 
+function isPastDue(startDateTime) {
+  return new Date(startDateTime) < new Date();
+}
+
+function isDueToday(startDateTime) {
+  const now = new Date();
+  const due = new Date(startDateTime);
+
+  return (
+    due.getFullYear() === now.getFullYear() &&
+    due.getMonth() === now.getMonth() &&
+    due.getDate() === now.getDate()
+  );
+}
+
+function isDueThisWeek(startDateTime) {
+  const now = new Date();
+  const due = new Date(startDateTime);
+
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endOfWindow = new Date(startOfToday);
+  endOfWindow.setDate(endOfWindow.getDate() + 7);
+
+  return due >= startOfToday && due <= endOfWindow;
+}
+
+function getCountdownText(startDateTime) {
+  const now = new Date();
+  const due = new Date(startDateTime);
+  const diffMs = due - now;
+
+  if (diffMs <= 0) return "Due now or passed";
+
+  const totalMinutes = Math.floor(diffMs / (1000 * 60));
+  const days = Math.floor(totalMinutes / (60 * 24));
+  const hours = Math.floor((totalMinutes % (60 * 24)) / 60);
+  const minutes = totalMinutes % 60;
+
+  if (days > 0) return `Due in ${days}d ${hours}h`;
+  if (hours > 0) return `Due in ${hours}h ${minutes}m`;
+  return `Due in ${minutes}m`;
+}
+
 export default function App() {
   const [showOnlyUpcoming, setShowOnlyUpcoming] = useState(false);
   const [deadlines, setDeadlines] = useState([]);
   const [deadlinesLoading, setDeadlinesLoading] = useState(true);
   const [deadlinesError, setDeadlinesError] = useState("");
+  const [deadlineFilter, setDeadlineFilter] = useState("All");
   const now = new Date();
 
   const sortedSchedule = [...schedule].sort(
@@ -335,13 +409,16 @@ export default function App() {
           .filter((item) => item.start?.dateTime || item.start?.date)
           .map((item) => {
             const start = item.start.dateTime || `${item.start.date}T11:59:00`;
+            const title = item.summary || "Untitled assignment";
+
             return {
               id: item.id,
-              title: item.summary || "Untitled assignment",
+              title,
               start,
               location: item.location || "",
               description: item.description || "",
               link: item.htmlLink || "",
+              courseCategory: getCourseFromTitle(title),
             };
           });
 
@@ -382,6 +459,43 @@ export default function App() {
       calendarProgress,
     };
   }, [now, sortedSchedule]);
+
+  const deadlineSummary = useMemo(() => {
+    const upcoming = deadlines.filter((item) => !isPastDue(item.start));
+    const nextDeadline = upcoming.length > 0 ? upcoming[0] : null;
+
+    const dueTodayCount = upcoming.filter((item) => isDueToday(item.start)).length;
+    const dueThisWeekCount = upcoming.filter((item) => isDueThisWeek(item.start)).length;
+    const pastDueCount = deadlines.filter((item) => isPastDue(item.start)).length;
+
+    return {
+      nextDeadline,
+      dueTodayCount,
+      dueThisWeekCount,
+      pastDueCount,
+    };
+  }, [deadlines]);
+
+  const filteredDeadlines = useMemo(() => {
+    if (deadlineFilter === "All") return deadlines;
+    return deadlines.filter((item) => item.courseCategory === deadlineFilter);
+  }, [deadlines, deadlineFilter]);
+
+  const filteredDeadlineSummary = useMemo(() => {
+    const upcoming = filteredDeadlines.filter((item) => !isPastDue(item.start));
+    const nextDeadline = upcoming.length > 0 ? upcoming[0] : null;
+
+    const dueTodayCount = upcoming.filter((item) => isDueToday(item.start)).length;
+    const dueThisWeekCount = upcoming.filter((item) => isDueThisWeek(item.start)).length;
+    const pastDueCount = filteredDeadlines.filter((item) => isPastDue(item.start)).length;
+
+    return {
+      nextDeadline,
+      dueTodayCount,
+      dueThisWeekCount,
+      pastDueCount,
+    };
+  }, [filteredDeadlines]);
 
   const courses = useMemo(() => {
     const grouped = {};
@@ -553,46 +667,133 @@ export default function App() {
             </p>
           </div>
 
+          <div className="deadline-filter-row">
+            {["All", "Accounting", "Customer Experience", "Practicum", "Other"].map((filter) => (
+              <button
+                key={filter}
+                className={`filter-chip ${deadlineFilter === filter ? "filter-chip-active" : ""}`}
+                onClick={() => setDeadlineFilter(filter)}
+              >
+                {filter}
+              </button>
+            ))}
+          </div>
+
           {deadlinesLoading ? (
             <div className="card deadlines-empty">Loading deadlines...</div>
           ) : deadlinesError ? (
             <div className="card deadlines-empty">{deadlinesError}</div>
-          ) : deadlines.length === 0 ? (
+          ) : filteredDeadlines.length === 0 ? (
             <div className="card deadlines-empty">No upcoming deadlines found.</div>
           ) : (
-            <div className="deadlines-grid">
-              {deadlines.map((item) => (
-                <div className="card deadline-card" key={item.id}>
-                  <div className="deadline-topline">
-                    <span
-                      className={`pill urgency-${getUrgencyLabel(item.start)
-                        .toLowerCase()
-                        .replace(" ", "-")}`}
-                    >
-                      {getUrgencyLabel(item.start)}
-                    </span>
+            <>
+              <div className="deadline-summary-grid">
+                <div className="card next-deadline-card">
+                  <div className="card-label">Next Deadline</div>
+
+                  {filteredDeadlineSummary.nextDeadline ? (
+                    <>
+                      <div className="next-deadline-title">
+                        {filteredDeadlineSummary.nextDeadline.title}
+                      </div>
+                      <div className="next-deadline-date">
+                        {formatDeadlineDate(filteredDeadlineSummary.nextDeadline.start)}
+                      </div>
+                      <div className="next-deadline-countdown">
+                        {getCountdownText(filteredDeadlineSummary.nextDeadline.start)}
+                      </div>
+
+                      <div className="next-deadline-badges">
+                        <span
+                          className={`pill urgency-${getUrgencyLabel(
+                            filteredDeadlineSummary.nextDeadline.start
+                          )
+                            .toLowerCase()
+                            .replace(" ", "-")}`}
+                        >
+                          {getUrgencyLabel(filteredDeadlineSummary.nextDeadline.start)}
+                        </span>
+                      </div>
+
+                      {filteredDeadlineSummary.nextDeadline.link ? (
+                        <a
+                          className="deadline-link"
+                          href={filteredDeadlineSummary.nextDeadline.link}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open in Google Calendar
+                        </a>
+                      ) : null}
+                    </>
+                  ) : (
+                    <div className="card-subtitle">No upcoming deadlines</div>
+                  )}
+                </div>
+
+                <div className="deadline-mini-stats">
+                  <div className="card mini-stat-card">
+                    <div className="card-label">Due Today</div>
+                    <div className="card-value">{filteredDeadlineSummary.dueTodayCount}</div>
                   </div>
 
-                  <div className="deadline-title">{item.title}</div>
-                  <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
+                  <div className="card mini-stat-card">
+                    <div className="card-label">Due This Week</div>
+                    <div className="card-value">{filteredDeadlineSummary.dueThisWeekCount}</div>
+                  </div>
 
-                  {item.location ? (
-                    <div className="deadline-meta">{item.location}</div>
-                  ) : null}
-
-                  {item.link ? (
-                    <a
-                      className="deadline-link"
-                      href={item.link}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Open in Google Calendar
-                    </a>
-                  ) : null}
+                  <div className="card mini-stat-card">
+                    <div className="card-label">Past Due</div>
+                    <div className="card-value">{filteredDeadlineSummary.pastDueCount}</div>
+                  </div>
                 </div>
-              ))}
-            </div>
+              </div>
+
+              <div className="deadlines-grid">
+                {filteredDeadlines.map((item) => (
+                  <div
+                    className={`card deadline-card ${getUrgencyLabel(item.start) === "Past due"
+                        ? "urgency-past-due-card"
+                        : getUrgencyLabel(item.start) === "Today"
+                          ? "urgency-today-card"
+                          : getUrgencyLabel(item.start) === "This week"
+                            ? "urgency-this-week-card"
+                            : ""
+                      }`}
+                    key={item.id}
+                  >
+                    <div className="deadline-topline">
+                      <span
+                        className={`pill urgency-${getUrgencyLabel(item.start)
+                          .toLowerCase()
+                          .replace(" ", "-")}`}
+                      >
+                        {getUrgencyLabel(item.start)}
+                      </span>
+                    </div>
+
+                    <div className="deadline-title">{item.title}</div>
+                    <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
+                    <div className="deadline-countdown">{getCountdownText(item.start)}</div>
+
+                    {item.location ? (
+                      <div className="deadline-meta">{item.location}</div>
+                    ) : null}
+
+                    {item.link ? (
+                      <a
+                        className="deadline-link"
+                        href={item.link}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Open in Google Calendar
+                      </a>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </section>
         <section>
