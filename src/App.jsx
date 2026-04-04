@@ -1,0 +1,461 @@
+import { useMemo, useState } from "react";
+
+const schedule = [
+  {
+    date: "2026-04-01",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-04-04",
+    day: "Saturday",
+    start: "8:30 AM",
+    end: "11:45 AM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 528",
+    course: "Customer Experience",
+    instructor: "Sasha Frijanic",
+  },
+  {
+    date: "2026-04-04",
+    day: "Saturday",
+    start: "12:45 PM",
+    end: "4:30 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 554",
+    course: "Entrepreneurial Practicum",
+    instructor: "Christy Johnson",
+  },
+  {
+    date: "2026-04-08",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-04-15",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-04-18",
+    day: "Saturday",
+    start: "8:30 AM",
+    end: "11:45 AM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 528",
+    course: "Customer Experience",
+    instructor: "Sasha Frijanic",
+  },
+  {
+    date: "2026-04-18",
+    day: "Saturday",
+    start: "12:45 PM",
+    end: "4:30 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-04-22",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-04-29",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-05-02",
+    day: "Saturday",
+    start: "8:30 AM",
+    end: "11:45 AM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 528",
+    course: "Customer Experience",
+    instructor: "Sasha Frijanic",
+  },
+  {
+    date: "2026-05-02",
+    day: "Saturday",
+    start: "12:45 PM",
+    end: "4:30 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 554",
+    course: "Entrepreneurial Practicum",
+    instructor: "Christy Johnson",
+  },
+  {
+    date: "2026-05-06",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-05-13",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-05-16",
+    day: "Saturday",
+    start: "8:30 AM",
+    end: "11:45 AM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 528",
+    course: "Customer Experience",
+    instructor: "Sasha Frijanic",
+  },
+  {
+    date: "2026-05-16",
+    day: "Saturday",
+    start: "12:45 PM",
+    end: "4:30 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 554",
+    course: "Entrepreneurial Practicum",
+    instructor: "Christy Johnson",
+  },
+  {
+    date: "2026-05-20",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-05-27",
+    day: "Wednesday",
+    start: "6:00 PM",
+    end: "9:15 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 554",
+    course: "Entrepreneurial Practicum",
+    instructor: "Christy Johnson",
+  },
+  {
+    date: "2026-05-30",
+    day: "Saturday",
+    start: "8:30 AM",
+    end: "11:45 AM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 528",
+    course: "Customer Experience",
+    instructor: "Sasha Frijanic",
+  },
+  {
+    date: "2026-05-30",
+    day: "Saturday",
+    start: "12:45 PM",
+    end: "5:00 PM",
+    location: "EEC - Classroom 1",
+    courseNumber: "TMMBA 517",
+    course: "Managerial Accounting & Decision Making",
+    instructor: "Suneel Udpa",
+  },
+  {
+    date: "2026-06-03",
+    day: "Wednesday",
+    start: "3:30 PM",
+    end: "9:30 PM",
+    location: "UW Seattle",
+    courseNumber: "TMMBA 554",
+    course: "Entrepreneurial Practicum",
+    instructor: "Christy Johnson",
+  },
+];
+
+const courseCredits = {
+  "TMMBA 517": 4,
+  "TMMBA 528": 2,
+  "TMMBA 554": 2,
+};
+
+function toDateTime(dateStr, timeStr) {
+  return new Date(`${dateStr} ${timeStr}`);
+}
+
+function formatDate(dateStr) {
+  const d = new Date(`${dateStr}T12:00:00`);
+  return d.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+function getSessionStatus(now, item) {
+  const start = toDateTime(item.date, item.start);
+  const end = toDateTime(item.date, item.end);
+
+  if (now < start) return "upcoming";
+  if (now > end) return "done";
+  return "live";
+}
+
+function percent(done, total) {
+  if (!total) return 0;
+  return Math.round((done / total) * 100);
+}
+
+function ProgressBar({ value }) {
+  return (
+    <div className="progress-track">
+      <div className="progress-fill" style={{ width: `${value}%` }} />
+    </div>
+  );
+}
+
+function StatCard({ title, value, subtitle, progress }) {
+  return (
+    <div className="card stat-card">
+      <div className="card-label">{title}</div>
+      <div className="card-value">{value}</div>
+      <div className="card-subtitle">{subtitle}</div>
+      {typeof progress === "number" && <ProgressBar value={progress} />}
+    </div>
+  );
+}
+
+function StatusBadge({ status }) {
+  return <span className={`badge badge-${status}`}>{status}</span>;
+}
+
+export default function App() {
+  const [showOnlyUpcoming, setShowOnlyUpcoming] = useState(false);
+  const now = new Date();
+
+  const sortedSchedule = [...schedule].sort(
+    (a, b) => toDateTime(a.date, a.start) - toDateTime(b.date, b.start)
+  );
+
+  const overall = useMemo(() => {
+    const total = sortedSchedule.length;
+    const done = sortedSchedule.filter((item) => getSessionStatus(now, item) === "done").length;
+    const live = sortedSchedule.filter((item) => getSessionStatus(now, item) === "live").length;
+    const next = sortedSchedule.find((item) => getSessionStatus(now, item) === "upcoming") || null;
+
+    const start = toDateTime(sortedSchedule[0].date, sortedSchedule[0].start);
+    const end = toDateTime(
+      sortedSchedule[sortedSchedule.length - 1].date,
+      sortedSchedule[sortedSchedule.length - 1].end
+    );
+
+    let calendarProgress = 0;
+    if (now <= start) calendarProgress = 0;
+    else if (now >= end) calendarProgress = 100;
+    else calendarProgress = Math.round(((now - start) / (end - start)) * 100);
+
+    return {
+      total,
+      done,
+      live,
+      next,
+      calendarProgress,
+    };
+  }, [now, sortedSchedule]);
+
+  const courses = useMemo(() => {
+    const grouped = {};
+
+    sortedSchedule.forEach((item) => {
+      if (!grouped[item.courseNumber]) {
+        grouped[item.courseNumber] = {
+          courseNumber: item.courseNumber,
+          course: item.course,
+          instructor: item.instructor,
+          credits: courseCredits[item.courseNumber] || 0,
+          sessions: [],
+        };
+      }
+      grouped[item.courseNumber].sessions.push(item);
+    });
+
+    return Object.values(grouped).map((group) => {
+      const done = group.sessions.filter((item) => getSessionStatus(now, item) === "done").length;
+      const next =
+        group.sessions.find((item) => getSessionStatus(now, item) === "upcoming") || null;
+
+      return {
+        ...group,
+        done,
+        total: group.sessions.length,
+        next,
+      };
+    });
+  }, [now, sortedSchedule]);
+
+  const visibleSchedule = showOnlyUpcoming
+    ? sortedSchedule.filter((item) => getSessionStatus(now, item) !== "done")
+    : sortedSchedule;
+
+  return (
+    <div className="app-shell">
+      <div className="app-container">
+        <header className="hero">
+          <div>
+            <p className="eyebrow">UW Foster TMMBA</p>
+            <h1>TMMBA Spring 2026 Progress</h1>
+            <p className="hero-subtitle">
+              A live quarter tracker based on your current day and time.
+            </p>
+          </div>
+        </header>
+
+        <section className="stats-grid">
+          <StatCard
+            title="Quarter Progress"
+            value={`${percent(overall.done, overall.total)}%`}
+            subtitle={`${overall.done} of ${overall.total} class meetings completed`}
+            progress={percent(overall.done, overall.total)}
+          />
+          <StatCard
+            title="Calendar Progress"
+            value={`${overall.calendarProgress}%`}
+            subtitle="Progress through the overall quarter timeline"
+            progress={overall.calendarProgress}
+          />
+          <StatCard
+            title="Live Status"
+            value={overall.live > 0 ? "In class" : "Not in class"}
+            subtitle={`${overall.live} session live right now`}
+          />
+          <div className="card stat-card">
+            <div className="card-label">Next Class</div>
+            {overall.next ? (
+              <>
+                <div className="card-value next-class-number">{overall.next.courseNumber}</div>
+                <div className="card-subtitle strong">
+                  {formatDate(overall.next.date)} · {overall.next.start}–{overall.next.end}
+                </div>
+                <div className="card-subtitle">{overall.next.course}</div>
+              </>
+            ) : (
+              <>
+                <div className="card-value">Done</div>
+                <div className="card-subtitle">Quarter complete</div>
+              </>
+            )}
+          </div>
+        </section>
+
+        <section>
+          <div className="section-header">
+            <h2>Course Progress</h2>
+          </div>
+
+          <div className="course-grid">
+            {courses.map((course) => (
+              <div className="card course-card" key={course.courseNumber}>
+                <div className="course-topline">
+                  <div>
+                    <div className="course-number">{course.courseNumber}</div>
+                    <div className="course-name">{course.course}</div>
+                  </div>
+                  <span className="pill">{course.credits} credits</span>
+                </div>
+
+                <div className="course-meta">
+                  <span>{course.done} / {course.total} sessions done</span>
+                  <span>{percent(course.done, course.total)}%</span>
+                </div>
+
+                <ProgressBar value={percent(course.done, course.total)} />
+
+                <div className="course-footer">
+                  <div>Instructor: {course.instructor}</div>
+                  <div>
+                    Next:{" "}
+                    {course.next
+                      ? `${formatDate(course.next.date)} at ${course.next.start}`
+                      : "Complete"}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <div className="section-header timeline-header">
+            <div>
+              <h2>Schedule Timeline</h2>
+              <p className="section-subtitle">See everything, or just what’s left.</p>
+            </div>
+
+            <button
+              className="toggle-button"
+              onClick={() => setShowOnlyUpcoming((prev) => !prev)}
+            >
+              {showOnlyUpcoming ? "Show all" : "Show only upcoming"}
+            </button>
+          </div>
+
+          <div className="timeline-list">
+            {visibleSchedule.map((item, index) => {
+              const status = getSessionStatus(now, item);
+
+              return (
+                <div className="card timeline-item" key={`${item.courseNumber}-${item.date}-${index}`}>
+                  <div className="timeline-left">
+                    <div className="timeline-top">
+                      <StatusBadge status={status} />
+                      <span className="timeline-course-number">{item.courseNumber}</span>
+                    </div>
+                    <div className="timeline-title">{item.course}</div>
+                    <div className="timeline-subtitle">
+                      {formatDate(item.date)} · {item.start}–{item.end}
+                    </div>
+                  </div>
+
+                  <div className="timeline-right">
+                    <div>{item.location}</div>
+                    <div>{item.instructor}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
