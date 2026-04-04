@@ -538,3 +538,40 @@ button {
   color: #334155;
   border: 1px solid #cbd5e1;
 }
+
+.deadline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+  align-items: center;
+}
+
+.done-button {
+  border: 1px solid #cbd5e1;
+  background: #0f172a;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.18s ease;
+}
+
+.done-button:hover {
+  opacity: 0.92;
+}
+
+.done-button-secondary {
+  background: white;
+  color: #334155;
+}
+
+.deadline-card-completed {
+  opacity: 0.72;
+  background: #f8fafc;
+}
+
+.deadline-card-completed .deadline-title {
+  text-decoration: line-through;
+}

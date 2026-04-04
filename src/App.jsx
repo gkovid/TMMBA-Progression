@@ -358,8 +358,7 @@ function isDueThisWeek(startDateTime) {
   return due >= startOfToday && due <= endOfWindow;
 }
 
-function getCountdownText(startDateTime) {
-  const now = new Date();
+function getCountdownText(startDateTime, now) {
   const due = new Date(startDateTime);
   const diffMs = due - now;
 
@@ -381,7 +380,11 @@ export default function App() {
   const [deadlinesLoading, setDeadlinesLoading] = useState(true);
   const [deadlinesError, setDeadlinesError] = useState("");
   const [deadlineFilter, setDeadlineFilter] = useState("All");
-  const now = new Date();
+  const [now, setNow] = useState(new Date());
+  const [completedDeadlines, setCompletedDeadlines] = useState(() => {
+    const saved = localStorage.getItem("completedDeadlines");
+    return saved ? JSON.parse(saved) : {};
+  });
 
   const sortedSchedule = [...schedule].sort(
     (a, b) => toDateTime(a.date, a.start) - toDateTime(b.date, b.start)
@@ -447,6 +450,25 @@ export default function App() {
     loadDeadlines();
   }, []);
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setNow(new Date());
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("completedDeadlines", JSON.stringify(completedDeadlines));
+  }, [completedDeadlines]);
+
+  function toggleDeadlineDone(id) {
+    setCompletedDeadlines((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  }
+
   const overall = useMemo(() => {
     const total = sortedSchedule.length;
     const done = sortedSchedule.filter((item) => getSessionStatus(now, item) === "done").length;
@@ -497,17 +519,29 @@ export default function App() {
   }, [deadlines]);
 
   const filteredDeadlines = useMemo(() => {
-    if (deadlineFilter === "All") return deadlines;
-    return deadlines.filter((item) => item.courseCategory === deadlineFilter);
+    const visible =
+      deadlineFilter === "All"
+        ? deadlines
+        : deadlines.filter((item) => item.courseCategory === deadlineFilter);
+
+    return visible;
   }, [deadlines, deadlineFilter]);
 
+  const activeFilteredDeadlines = useMemo(() => {
+    return filteredDeadlines.filter((item) => !completedDeadlines[item.id]);
+  }, [filteredDeadlines, completedDeadlines]);
+
+  const completedFilteredDeadlines = useMemo(() => {
+    return filteredDeadlines.filter((item) => completedDeadlines[item.id]);
+  }, [filteredDeadlines, completedDeadlines]);
+
   const filteredDeadlineSummary = useMemo(() => {
-    const upcoming = filteredDeadlines.filter((item) => !isPastDue(item.start));
+    const upcoming = activeFilteredDeadlines.filter((item) => !isPastDue(item.start));
     const nextDeadline = upcoming.length > 0 ? upcoming[0] : null;
 
     const dueTodayCount = upcoming.filter((item) => isDueToday(item.start)).length;
     const dueThisWeekCount = upcoming.filter((item) => isDueThisWeek(item.start)).length;
-    const pastDueCount = filteredDeadlines.filter((item) => isPastDue(item.start)).length;
+    const pastDueCount = activeFilteredDeadlines.filter((item) => isPastDue(item.start)).length;
 
     return {
       nextDeadline,
@@ -515,7 +549,7 @@ export default function App() {
       dueThisWeekCount,
       pastDueCount,
     };
-  }, [filteredDeadlines]);
+  }, [activeFilteredDeadlines]);
 
   const courses = useMemo(() => {
     const grouped = {};
@@ -707,7 +741,7 @@ export default function App() {
             <div className="card deadlines-empty">Loading deadlines...</div>
           ) : deadlinesError ? (
             <div className="card deadlines-empty">{deadlinesError}</div>
-          ) : filteredDeadlines.length === 0 ? (
+          ) : activeFilteredDeadlines.length === 0 && completedFilteredDeadlines.length === 0 ? (
             <div className="card deadlines-empty">No upcoming deadlines found.</div>
           ) : (
             <>
@@ -724,7 +758,7 @@ export default function App() {
                         {formatDeadlineDate(filteredDeadlineSummary.nextDeadline.start)}
                       </div>
                       <div className="next-deadline-countdown">
-                        {getCountdownText(filteredDeadlineSummary.nextDeadline.start)}
+                        {getCountdownText(filteredDeadlineSummary.nextDeadline.start, now)}
                       </div>
 
                       <div className="next-deadline-badges">
@@ -774,7 +808,7 @@ export default function App() {
               </div>
 
               <div className="deadlines-grid">
-                {filteredDeadlines.map((item) => (
+                {activeFilteredDeadlines.map((item) => (
                   <div
                     className={`card deadline-card ${getUrgencyLabel(item.start) === "Past due"
                       ? "urgency-past-due-card"
@@ -798,25 +832,77 @@ export default function App() {
 
                     <div className="deadline-title">{item.title}</div>
                     <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
-                    <div className="deadline-countdown">{getCountdownText(item.start)}</div>
+                    <div className="deadline-countdown">{getCountdownText(item.start, now)}</div>
 
                     {item.location ? (
                       <div className="deadline-meta">{item.location}</div>
                     ) : null}
 
-                    {item.link ? (
-                      <a
-                        className="deadline-link"
-                        href={item.link}
-                        target="_blank"
-                        rel="noreferrer"
+                    <div className="deadline-actions">
+                      <button
+                        className="done-button"
+                        onClick={() => toggleDeadlineDone(item.id)}
                       >
-                        Open in Google Calendar
-                      </a>
-                    ) : null}
+                        Mark done
+                      </button>
+
+                      {item.link ? (
+                        <a
+                          className="deadline-link"
+                          href={item.link}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          Open in Google Calendar
+                        </a>
+                      ) : null}
+                    </div>
                   </div>
                 ))}
               </div>
+              {completedFilteredDeadlines.length > 0 && (
+                <>
+                  <div className="section-header">
+                    <h2>Completed</h2>
+                    <p className="section-subtitle">
+                      Assignments you’ve marked as done on this device.
+                    </p>
+                  </div>
+
+                  <div className="deadlines-grid">
+                    {completedFilteredDeadlines.map((item) => (
+                      <div className="card deadline-card deadline-card-completed" key={item.id}>
+                        <div className="deadline-topline">
+                          <span className="pill">Done</span>
+                        </div>
+
+                        <div className="deadline-title">{item.title}</div>
+                        <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
+
+                        <div className="deadline-actions">
+                          <button
+                            className="done-button done-button-secondary"
+                            onClick={() => toggleDeadlineDone(item.id)}
+                          >
+                            Undo
+                          </button>
+
+                          {item.link ? (
+                            <a
+                              className="deadline-link"
+                              href={item.link}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Open in Google Calendar
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </>
           )}
         </section>
