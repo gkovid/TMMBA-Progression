@@ -1,245 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
+import calendarConfig from "./data/calendarConfig.json";
+import quarterData from "./data/quarterData.json";
 
-const schedule = [
-  {
-    date: "2026-04-01",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-04-04",
-    day: "Saturday",
-    start: "8:30 AM",
-    end: "11:45 AM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 528",
-    course: "Customer Experience",
-    instructor: "Sasha Frijanic",
-  },
-  {
-    date: "2026-04-04",
-    day: "Saturday",
-    start: "12:45 PM",
-    end: "4:30 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 554",
-    course: "Entrepreneurial Practicum",
-    instructor: "Christy Johnson",
-  },
-  {
-    date: "2026-04-08",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-04-15",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-04-18",
-    day: "Saturday",
-    start: "8:30 AM",
-    end: "11:45 AM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 528",
-    course: "Customer Experience",
-    instructor: "Sasha Frijanic",
-  },
-  {
-    date: "2026-04-18",
-    day: "Saturday",
-    start: "12:45 PM",
-    end: "4:30 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-04-22",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-04-29",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-05-02",
-    day: "Saturday",
-    start: "8:30 AM",
-    end: "11:45 AM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 528",
-    course: "Customer Experience",
-    instructor: "Sasha Frijanic",
-  },
-  {
-    date: "2026-05-02",
-    day: "Saturday",
-    start: "12:45 PM",
-    end: "4:30 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 554",
-    course: "Entrepreneurial Practicum",
-    instructor: "Christy Johnson",
-  },
-  {
-    date: "2026-05-06",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-05-13",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-05-16",
-    day: "Saturday",
-    start: "8:30 AM",
-    end: "11:45 AM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 528",
-    course: "Customer Experience",
-    instructor: "Sasha Frijanic",
-  },
-  {
-    date: "2026-05-16",
-    day: "Saturday",
-    start: "12:45 PM",
-    end: "4:30 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 554",
-    course: "Entrepreneurial Practicum",
-    instructor: "Christy Johnson",
-  },
-  {
-    date: "2026-05-20",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-05-27",
-    day: "Wednesday",
-    start: "6:00 PM",
-    end: "9:15 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 554",
-    course: "Entrepreneurial Practicum",
-    instructor: "Christy Johnson",
-  },
-  {
-    date: "2026-05-30",
-    day: "Saturday",
-    start: "8:30 AM",
-    end: "11:45 AM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 528",
-    course: "Customer Experience",
-    instructor: "Sasha Frijanic",
-  },
-  {
-    date: "2026-05-30",
-    day: "Saturday",
-    start: "12:45 PM",
-    end: "5:00 PM",
-    location: "EEC - Classroom 1",
-    courseNumber: "TMMBA 517",
-    course: "Managerial Accounting & Decision Making",
-    instructor: "Suneel Udpa",
-  },
-  {
-    date: "2026-06-03",
-    day: "Wednesday",
-    start: "3:30 PM",
-    end: "9:30 PM",
-    location: "UW Seattle",
-    courseNumber: "TMMBA 554",
-    course: "Entrepreneurial Practicum",
-    instructor: "Christy Johnson",
-  },
-];
-
-const courseCredits = {
-  "TMMBA 517": 4,
-  "TMMBA 528": 2,
-  "TMMBA 554": 2,
-};
-
-const CALENDAR_ID =
-  "ccbonsd41ih8soareip63hogg4baojke@import.calendar.google.com";
-
-// Replace this with your restricted browser API key
-const GOOGLE_CALENDAR_API_KEY = "AIzaSyDC93XY__VQbEUysm_7Qu39HtspvKDnXWQ";
+const GOOGLE_CALENDAR_API_KEY =
+  import.meta.env.VITE_GOOGLE_CALENDAR_API_KEY || "AIzaSyDC93XY__VQbEUysm_7Qu39HtspvKDnXWQ";
+const schedule = quarterData.schedule;
+const courseCatalog = quarterData.courses;
+const courseDetailsByNumber = Object.fromEntries(
+  courseCatalog.map((course) => [course.courseNumber, course])
+);
+const deadlineFilters = ["All", ...new Set(courseCatalog.map((course) => course.category)), "Other"];
 
 function getCourseFromTitle(title) {
   const text = (title || "").toLowerCase();
 
-  if (
-    text.includes("managerial accounting") ||
-    text.includes("accounting") ||
-    text.includes("tmmba 517")
-  ) {
-    return "Accounting";
-  }
+  const matchedCourse = courseCatalog.find((course) =>
+    course.matchKeywords.some((keyword) => text.includes(keyword.toLowerCase()))
+  );
 
-  if (
-    text.includes("customer experience") ||
-    text.includes("cx") ||
-    text.includes("tmmba 528")
-  ) {
-    return "Customer Experience";
-  }
-
-  if (
-    text.includes("entrepreneurial practicum") ||
-    text.includes("practicum") ||
-    text.includes("tmmba 554")
-  ) {
-    return "Practicum";
+  if (matchedCourse) {
+    return matchedCourse.category;
   }
 
   return "Other";
@@ -315,7 +95,7 @@ function formatDeadlineDate(dateString) {
     day: "numeric",
     hour: "numeric",
     minute: "2-digit",
-    timeZone: "America/Los_Angeles",
+    timeZone: quarterData.timeZone,
   });
 }
 
@@ -392,7 +172,10 @@ export default function App() {
 
   useEffect(() => {
     async function loadDeadlines() {
-      if (!GOOGLE_CALENDAR_API_KEY || GOOGLE_CALENDAR_API_KEY === "PASTE_YOUR_API_KEY_HERE") {
+      if (
+        !GOOGLE_CALENDAR_API_KEY ||
+        GOOGLE_CALENDAR_API_KEY === calendarConfig.apiKeyPlaceholder
+      ) {
         setDeadlinesLoading(false);
         setDeadlinesError("Add your Google Calendar API key to enable upcoming deadlines.");
         return;
@@ -402,17 +185,19 @@ export default function App() {
         setDeadlinesLoading(true);
         setDeadlinesError("");
 
-        const timeMin = new Date().toISOString();
+        const timeMin = new Date(calendarConfig.queryWindow.start).toISOString();
+        const timeMax = new Date(calendarConfig.queryWindow.end).toISOString();
         const params = new URLSearchParams({
           key: GOOGLE_CALENDAR_API_KEY,
           singleEvents: "true",
           orderBy: "startTime",
           timeMin,
+          timeMax,
           maxResults: "8",
         });
 
         const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
-          CALENDAR_ID
+          calendarConfig.calendarId
         )}/events?${params.toString()}`;
 
         const res = await fetch(url);
@@ -502,22 +287,6 @@ export default function App() {
     };
   }, [now, sortedSchedule]);
 
-  const deadlineSummary = useMemo(() => {
-    const upcoming = deadlines.filter((item) => !isPastDue(item.start));
-    const nextDeadline = upcoming.length > 0 ? upcoming[0] : null;
-
-    const dueTodayCount = upcoming.filter((item) => isDueToday(item.start)).length;
-    const dueThisWeekCount = upcoming.filter((item) => isDueThisWeek(item.start)).length;
-    const pastDueCount = deadlines.filter((item) => isPastDue(item.start)).length;
-
-    return {
-      nextDeadline,
-      dueTodayCount,
-      dueThisWeekCount,
-      pastDueCount,
-    };
-  }, [deadlines]);
-
   const filteredDeadlines = useMemo(() => {
     const visible =
       deadlineFilter === "All"
@@ -541,26 +310,28 @@ export default function App() {
 
     const dueTodayCount = upcoming.filter((item) => isDueToday(item.start)).length;
     const dueThisWeekCount = upcoming.filter((item) => isDueThisWeek(item.start)).length;
-    const pastDueCount = activeFilteredDeadlines.filter((item) => isPastDue(item.start)).length;
+    const completedCount = completedFilteredDeadlines.length;
 
     return {
       nextDeadline,
       dueTodayCount,
       dueThisWeekCount,
-      pastDueCount,
+      completedCount,
     };
-  }, [activeFilteredDeadlines]);
+  }, [activeFilteredDeadlines, completedFilteredDeadlines]);
 
   const courses = useMemo(() => {
     const grouped = {};
 
     sortedSchedule.forEach((item) => {
+      const courseDetails = courseDetailsByNumber[item.courseNumber];
+
       if (!grouped[item.courseNumber]) {
         grouped[item.courseNumber] = {
           courseNumber: item.courseNumber,
-          course: item.course,
-          instructor: item.instructor,
-          credits: courseCredits[item.courseNumber] || 0,
+          course: courseDetails?.course || item.course,
+          instructor: courseDetails?.instructor || item.instructor,
+          credits: courseDetails?.credits || 0,
           sessions: [],
         };
       }
@@ -590,25 +361,23 @@ export default function App() {
       <div className="app-container">
         <header className="hero">
           <div>
-            <p className="eyebrow">UW Foster TMMBA</p>
-            <h1>TMMBA Spring 2026 Progress</h1>
-            <p className="hero-subtitle">
-              A live quarter tracker based on your current day and time.
-            </p>
+            <p className="eyebrow">{quarterData.programLabel}</p>
+            <h1>{quarterData.quarterTitle}</h1>
+            <p className="hero-subtitle">{quarterData.heroSubtitle}</p>
           </div>
         </header>
         <div
-          className={`banner ${filteredDeadlineSummary.pastDueCount > 0
-              ? "banner-danger"
-              : filteredDeadlineSummary.dueTodayCount > 0
-                ? "banner-warning"
-                : "banner-neutral"
+          className={`banner ${filteredDeadlineSummary.dueTodayCount > 0
+            ? "banner-warning"
+            : filteredDeadlineSummary.completedCount > 0
+              ? "banner-neutral"
+              : "banner-neutral"
             }`}
         >
-          {filteredDeadlineSummary.pastDueCount > 0
-            ? `🚨 You have ${filteredDeadlineSummary.pastDueCount} past due assignment(s) and ${filteredDeadlineSummary.dueTodayCount} due today`
-            : filteredDeadlineSummary.dueTodayCount > 0
-              ? `⚠️ You have ${filteredDeadlineSummary.dueTodayCount} assignment(s) due today`
+          {filteredDeadlineSummary.dueTodayCount > 0
+            ? `⚠️ You have ${filteredDeadlineSummary.dueTodayCount} assignment(s) due today`
+            : filteredDeadlineSummary.completedCount > 0
+              ? `✅ You’ve completed ${filteredDeadlineSummary.completedCount} assignment(s) on this device`
               : "✅ No assignments due today"}
         </div>
         <section className="stats-grid">
@@ -735,7 +504,7 @@ export default function App() {
           </div>
 
           <div className="deadline-filter-row">
-            {["All", "Accounting", "Customer Experience", "Practicum", "Other"].map((filter) => (
+            {deadlineFilters.map((filter) => (
               <button
                 key={filter}
                 className={`filter-chip ${deadlineFilter === filter ? "filter-chip-active" : ""}`}
@@ -810,8 +579,8 @@ export default function App() {
                   </div>
 
                   <div className="card mini-stat-card">
-                    <div className="card-label">Past Due</div>
-                    <div className="card-value">{filteredDeadlineSummary.pastDueCount}</div>
+                    <div className="card-label">Completed</div>
+                    <div className="card-value">{filteredDeadlineSummary.completedCount}</div>
                   </div>
                 </div>
               </div>
@@ -926,7 +695,7 @@ export default function App() {
           <div className="card calendar-card">
             <iframe
               title="Assignment Deadlines Calendar"
-              src="https://calendar.google.com/calendar/embed?src=ccbonsd41ih8soareip63hogg4baojke%40import.calendar.google.com&ctz=America%2FLos_Angeles&showTitle=0&showNav=1&showDate=1&showPrint=0&showTabs=1&showCalendars=0&showTz=0"
+              src={calendarConfig.embedUrl}
               style={{ border: 0, width: "100%", height: "700px", borderRadius: "24px" }}
               frameBorder="0"
               scrolling="no"

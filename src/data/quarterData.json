@@ -1,0 +1,234 @@
+{
+  "programLabel": "UW Foster TMMBA",
+  "quarterTitle": "TMMBA Spring 2026 Progress",
+  "heroSubtitle": "A live quarter tracker based on your current day and time.",
+  "timeZone": "America/Los_Angeles",
+  "courses": [
+    {
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa",
+      "credits": 4,
+      "category": "Accounting",
+      "matchKeywords": ["managerial accounting", "accounting", "tmmba 517"]
+    },
+    {
+      "courseNumber": "TMMBA 528",
+      "course": "Customer Experience",
+      "instructor": "Sasha Frijanic",
+      "credits": 2,
+      "category": "Customer Experience",
+      "matchKeywords": ["customer experience", "cx", "tmmba 528"]
+    },
+    {
+      "courseNumber": "TMMBA 554",
+      "course": "Entrepreneurial Practicum",
+      "instructor": "Christy Johnson",
+      "credits": 2,
+      "category": "Practicum",
+      "matchKeywords": ["entrepreneurial practicum", "practicum", "tmmba 554"]
+    }
+  ],
+  "schedule": [
+    {
+      "date": "2026-04-01",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-04-04",
+      "day": "Saturday",
+      "start": "8:30 AM",
+      "end": "11:45 AM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 528",
+      "course": "Customer Experience",
+      "instructor": "Sasha Frijanic"
+    },
+    {
+      "date": "2026-04-04",
+      "day": "Saturday",
+      "start": "12:45 PM",
+      "end": "4:30 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 554",
+      "course": "Entrepreneurial Practicum",
+      "instructor": "Christy Johnson"
+    },
+    {
+      "date": "2026-04-08",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-04-15",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-04-18",
+      "day": "Saturday",
+      "start": "8:30 AM",
+      "end": "11:45 AM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 528",
+      "course": "Customer Experience",
+      "instructor": "Sasha Frijanic"
+    },
+    {
+      "date": "2026-04-18",
+      "day": "Saturday",
+      "start": "12:45 PM",
+      "end": "4:30 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-04-22",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-04-29",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-05-02",
+      "day": "Saturday",
+      "start": "8:30 AM",
+      "end": "11:45 AM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 528",
+      "course": "Customer Experience",
+      "instructor": "Sasha Frijanic"
+    },
+    {
+      "date": "2026-05-02",
+      "day": "Saturday",
+      "start": "12:45 PM",
+      "end": "4:30 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 554",
+      "course": "Entrepreneurial Practicum",
+      "instructor": "Christy Johnson"
+    },
+    {
+      "date": "2026-05-06",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-05-13",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-05-16",
+      "day": "Saturday",
+      "start": "8:30 AM",
+      "end": "11:45 AM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 528",
+      "course": "Customer Experience",
+      "instructor": "Sasha Frijanic"
+    },
+    {
+      "date": "2026-05-16",
+      "day": "Saturday",
+      "start": "12:45 PM",
+      "end": "4:30 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 554",
+      "course": "Entrepreneurial Practicum",
+      "instructor": "Christy Johnson"
+    },
+    {
+      "date": "2026-05-20",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-05-27",
+      "day": "Wednesday",
+      "start": "6:00 PM",
+      "end": "9:15 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 554",
+      "course": "Entrepreneurial Practicum",
+      "instructor": "Christy Johnson"
+    },
+    {
+      "date": "2026-05-30",
+      "day": "Saturday",
+      "start": "8:30 AM",
+      "end": "11:45 AM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 528",
+      "course": "Customer Experience",
+      "instructor": "Sasha Frijanic"
+    },
+    {
+      "date": "2026-05-30",
+      "day": "Saturday",
+      "start": "12:45 PM",
+      "end": "5:00 PM",
+      "location": "EEC - Classroom 1",
+      "courseNumber": "TMMBA 517",
+      "course": "Managerial Accounting & Decision Making",
+      "instructor": "Suneel Udpa"
+    },
+    {
+      "date": "2026-06-03",
+      "day": "Wednesday",
+      "start": "3:30 PM",
+      "end": "9:30 PM",
+      "location": "UW Seattle",
+      "courseNumber": "TMMBA 554",
+      "course": "Entrepreneurial Practicum",
+      "instructor": "Christy Johnson"
+    }
+  ]
+}
