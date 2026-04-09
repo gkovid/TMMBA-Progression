@@ -160,6 +160,7 @@ export default function App() {
   const [deadlinesLoading, setDeadlinesLoading] = useState(true);
   const [deadlinesError, setDeadlinesError] = useState("");
   const [deadlineFilter, setDeadlineFilter] = useState("All");
+  const [deadlineQuickFilter, setDeadlineQuickFilter] = useState("all");
   const [now, setNow] = useState(new Date());
   const [completedDeadlines, setCompletedDeadlines] = useState(() => {
     const saved = localStorage.getItem("completedDeadlines");
@@ -254,6 +255,10 @@ export default function App() {
     }));
   }
 
+  function toggleDeadlineQuickFilter(nextFilter) {
+    setDeadlineQuickFilter((prev) => (prev === nextFilter ? "all" : nextFilter));
+  }
+
   const overall = useMemo(() => {
     const total = sortedSchedule.length;
     const done = sortedSchedule.filter((item) => getSessionStatus(now, item) === "done").length;
@@ -319,6 +324,47 @@ export default function App() {
       completedCount,
     };
   }, [activeFilteredDeadlines, completedFilteredDeadlines]);
+
+  const visibleActiveDeadlines = useMemo(() => {
+    if (deadlineQuickFilter === "today") {
+      return activeFilteredDeadlines.filter((item) => isDueToday(item.start));
+    }
+
+    if (deadlineQuickFilter === "week") {
+      return activeFilteredDeadlines.filter((item) => isDueThisWeek(item.start));
+    }
+
+    if (deadlineQuickFilter === "completed") {
+      return [];
+    }
+
+    return activeFilteredDeadlines;
+  }, [activeFilteredDeadlines, deadlineQuickFilter]);
+
+  const visibleCompletedDeadlines = useMemo(() => {
+    if (deadlineQuickFilter === "completed") {
+      return completedFilteredDeadlines;
+    }
+
+    return completedFilteredDeadlines;
+  }, [completedFilteredDeadlines, deadlineQuickFilter]);
+
+  const displayedNextDeadline = useMemo(() => {
+    if (deadlineQuickFilter === "completed") {
+      return null;
+    }
+
+    return visibleActiveDeadlines.find((item) => !isPastDue(item.start)) || null;
+  }, [deadlineQuickFilter, visibleActiveDeadlines]);
+
+  const deadlineEmptyMessage =
+    deadlineQuickFilter === "today"
+      ? "No assignments due today for this filter."
+      : deadlineQuickFilter === "week"
+        ? "No assignments due this week for this filter."
+        : deadlineQuickFilter === "completed"
+          ? "No completed assignments for this filter."
+          : "No upcoming deadlines found.";
 
   const courses = useMemo(() => {
     const grouped = {};
@@ -519,42 +565,38 @@ export default function App() {
             <div className="card deadlines-empty">Loading deadlines...</div>
           ) : deadlinesError ? (
             <div className="card deadlines-empty">{deadlinesError}</div>
-          ) : activeFilteredDeadlines.length === 0 && completedFilteredDeadlines.length === 0 ? (
-            <div className="card deadlines-empty">No upcoming deadlines found.</div>
+          ) : visibleActiveDeadlines.length === 0 && visibleCompletedDeadlines.length === 0 ? (
+            <div className="card deadlines-empty">{deadlineEmptyMessage}</div>
           ) : (
             <>
               <div className="deadline-summary-grid">
                 <div className="card next-deadline-card">
                   <div className="card-label">Next Deadline</div>
 
-                  {filteredDeadlineSummary.nextDeadline ? (
+                  {displayedNextDeadline ? (
                     <>
-                      <div className="next-deadline-title">
-                        {filteredDeadlineSummary.nextDeadline.title}
-                      </div>
+                      <div className="next-deadline-title">{displayedNextDeadline.title}</div>
                       <div className="next-deadline-date">
-                        {formatDeadlineDate(filteredDeadlineSummary.nextDeadline.start)}
+                        {formatDeadlineDate(displayedNextDeadline.start)}
                       </div>
                       <div className="next-deadline-countdown">
-                        {getCountdownText(filteredDeadlineSummary.nextDeadline.start, now)}
+                        {getCountdownText(displayedNextDeadline.start, now)}
                       </div>
 
                       <div className="next-deadline-badges">
                         <span
-                          className={`pill urgency-${getUrgencyLabel(
-                            filteredDeadlineSummary.nextDeadline.start
-                          )
+                          className={`pill urgency-${getUrgencyLabel(displayedNextDeadline.start)
                             .toLowerCase()
                             .replace(" ", "-")}`}
                         >
-                          {getUrgencyLabel(filteredDeadlineSummary.nextDeadline.start)}
+                          {getUrgencyLabel(displayedNextDeadline.start)}
                         </span>
                       </div>
 
-                      {filteredDeadlineSummary.nextDeadline.link ? (
+                      {displayedNextDeadline.link ? (
                         <a
                           className="deadline-link"
-                          href={filteredDeadlineSummary.nextDeadline.link}
+                          href={displayedNextDeadline.link}
                           target="_blank"
                           rel="noreferrer"
                         >
@@ -568,25 +610,40 @@ export default function App() {
                 </div>
 
                 <div className="deadline-mini-stats">
-                  <div className="card mini-stat-card">
+                  <button
+                    type="button"
+                    className={`card mini-stat-card ${deadlineQuickFilter === "today" ? "mini-stat-card-active" : ""}`}
+                    onClick={() => toggleDeadlineQuickFilter("today")}
+                    aria-pressed={deadlineQuickFilter === "today"}
+                  >
                     <div className="card-label">Due Today</div>
                     <div className="card-value">{filteredDeadlineSummary.dueTodayCount}</div>
-                  </div>
+                  </button>
 
-                  <div className="card mini-stat-card">
+                  <button
+                    type="button"
+                    className={`card mini-stat-card ${deadlineQuickFilter === "week" ? "mini-stat-card-active" : ""}`}
+                    onClick={() => toggleDeadlineQuickFilter("week")}
+                    aria-pressed={deadlineQuickFilter === "week"}
+                  >
                     <div className="card-label">Due This Week</div>
                     <div className="card-value">{filteredDeadlineSummary.dueThisWeekCount}</div>
-                  </div>
+                  </button>
 
-                  <div className="card mini-stat-card">
+                  <button
+                    type="button"
+                    className={`card mini-stat-card ${deadlineQuickFilter === "completed" ? "mini-stat-card-active" : ""}`}
+                    onClick={() => toggleDeadlineQuickFilter("completed")}
+                    aria-pressed={deadlineQuickFilter === "completed"}
+                  >
                     <div className="card-label">Completed</div>
                     <div className="card-value">{filteredDeadlineSummary.completedCount}</div>
-                  </div>
+                  </button>
                 </div>
               </div>
 
               <div className="deadlines-grid">
-                {activeFilteredDeadlines.map((item) => (
+                {visibleActiveDeadlines.map((item) => (
                   <div
                     className={`card deadline-card ${getUrgencyLabel(item.start) === "Past due"
                       ? "urgency-past-due-card"
@@ -638,7 +695,7 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              {completedFilteredDeadlines.length > 0 && (
+              {visibleCompletedDeadlines.length > 0 && (
                 <>
                   <div className="section-header">
                     <h2>Completed</h2>
@@ -648,7 +705,7 @@ export default function App() {
                   </div>
 
                   <div className="deadlines-grid">
-                    {completedFilteredDeadlines.map((item) => (
+                    {visibleCompletedDeadlines.map((item) => (
                       <div className="card deadline-card deadline-card-completed" key={item.id}>
                         <div className="deadline-topline">
                           <span className="pill">Done</span>

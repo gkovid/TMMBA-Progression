@@ -483,6 +483,31 @@ button {
 
 .mini-stat-card {
   padding: 20px;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.mini-stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow:
+    0 14px 30px rgba(15, 23, 42, 0.08),
+    0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+.mini-stat-card:focus-visible {
+  outline: 3px solid rgba(99, 102, 241, 0.28);
+  outline-offset: 2px;
+}
+
+.mini-stat-card-active {
+  border-color: #6366f1;
+  background: linear-gradient(180deg, rgba(238, 242, 255, 0.95), rgba(255, 255, 255, 0.98));
 }
 
 .next-deadline-countdown {
