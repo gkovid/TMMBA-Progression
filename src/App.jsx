@@ -334,30 +334,52 @@ export default function App() {
 
     const dueTodayCount = upcoming.filter((item) => isDueToday(item.start)).length;
     const dueThisWeekCount = upcoming.filter((item) => isDueThisWeek(item.start)).length;
+    const pastDueCount = activeFilteredDeadlines.filter((item) => isPastDue(item.start)).length;
     const completedCount = completedFilteredDeadlines.length;
 
     return {
       nextDeadline,
       dueTodayCount,
       dueThisWeekCount,
+      pastDueCount,
       completedCount,
     };
   }, [activeFilteredDeadlines, completedFilteredDeadlines]);
 
-  const visibleActiveDeadlines = useMemo(() => {
+  const visibleUpcomingDeadlines = useMemo(() => {
     if (deadlineQuickFilter === "today") {
-      return activeFilteredDeadlines.filter((item) => isDueToday(item.start));
+      return activeFilteredDeadlines.filter(
+        (item) => !isPastDue(item.start) && isDueToday(item.start)
+      );
     }
 
     if (deadlineQuickFilter === "week") {
-      return activeFilteredDeadlines.filter((item) => isDueThisWeek(item.start));
+      return activeFilteredDeadlines.filter(
+        (item) => !isPastDue(item.start) && isDueThisWeek(item.start)
+      );
+    }
+
+    if (deadlineQuickFilter === "past-due") {
+      return [];
     }
 
     if (deadlineQuickFilter === "completed") {
       return [];
     }
 
-    return activeFilteredDeadlines;
+    return activeFilteredDeadlines.filter((item) => !isPastDue(item.start));
+  }, [activeFilteredDeadlines, deadlineQuickFilter]);
+
+  const visiblePastDueDeadlines = useMemo(() => {
+    if (deadlineQuickFilter === "today" || deadlineQuickFilter === "week") {
+      return [];
+    }
+
+    if (deadlineQuickFilter === "completed") {
+      return [];
+    }
+
+    return activeFilteredDeadlines.filter((item) => isPastDue(item.start));
   }, [activeFilteredDeadlines, deadlineQuickFilter]);
 
   const visibleCompletedDeadlines = useMemo(() => {
@@ -369,18 +391,20 @@ export default function App() {
   }, [completedFilteredDeadlines, deadlineQuickFilter]);
 
   const displayedNextDeadline = useMemo(() => {
-    if (deadlineQuickFilter === "completed") {
+    if (deadlineQuickFilter === "completed" || deadlineQuickFilter === "past-due") {
       return null;
     }
 
-    return visibleActiveDeadlines.find((item) => !isPastDue(item.start)) || null;
-  }, [deadlineQuickFilter, visibleActiveDeadlines]);
+    return visibleUpcomingDeadlines[0] || null;
+  }, [deadlineQuickFilter, visibleUpcomingDeadlines]);
 
   const deadlineEmptyMessage =
     deadlineQuickFilter === "today"
       ? "No assignments due today for this filter."
       : deadlineQuickFilter === "week"
         ? "No assignments due this week for this filter."
+        : deadlineQuickFilter === "past-due"
+          ? "No past due assignments for this filter."
         : deadlineQuickFilter === "completed"
           ? "No completed assignments for this filter."
           : "No upcoming deadlines found.";
@@ -432,14 +456,16 @@ export default function App() {
           </div>
         </header>
         <div
-          className={`banner ${filteredDeadlineSummary.dueTodayCount > 0
-            ? "banner-warning"
-            : filteredDeadlineSummary.completedCount > 0
-              ? "banner-neutral"
+          className={`banner ${filteredDeadlineSummary.pastDueCount > 0
+            ? "banner-danger"
+            : filteredDeadlineSummary.dueTodayCount > 0
+              ? "banner-warning"
               : "banner-neutral"
             }`}
         >
-          {filteredDeadlineSummary.dueTodayCount > 0
+          {filteredDeadlineSummary.pastDueCount > 0
+            ? `🚨 You have ${filteredDeadlineSummary.pastDueCount} past due assignment(s)`
+            : filteredDeadlineSummary.dueTodayCount > 0
             ? `⚠️ You have ${filteredDeadlineSummary.dueTodayCount} assignment(s) due today`
             : filteredDeadlineSummary.completedCount > 0
               ? `✅ You’ve completed ${filteredDeadlineSummary.completedCount} assignment(s) on this device`
@@ -584,7 +610,9 @@ export default function App() {
             <div className="card deadlines-empty">Loading deadlines...</div>
           ) : deadlinesError ? (
             <div className="card deadlines-empty">{deadlinesError}</div>
-          ) : visibleActiveDeadlines.length === 0 && visibleCompletedDeadlines.length === 0 ? (
+          ) : visibleUpcomingDeadlines.length === 0 &&
+            visiblePastDueDeadlines.length === 0 &&
+            visibleCompletedDeadlines.length === 0 ? (
             <div className="card deadlines-empty">{deadlineEmptyMessage}</div>
           ) : (
             <>
@@ -661,59 +689,107 @@ export default function App() {
                 </div>
               </div>
 
-              <div className="deadlines-grid">
-                {visibleActiveDeadlines.map((item) => (
-                  <div
-                    className={`card deadline-card ${getUrgencyLabel(item.start) === "Past due"
-                      ? "urgency-past-due-card"
-                      : getUrgencyLabel(item.start) === "Today"
+              {visibleUpcomingDeadlines.length > 0 && (
+                <div className="deadlines-grid">
+                  {visibleUpcomingDeadlines.map((item) => (
+                    <div
+                      className={`card deadline-card ${getUrgencyLabel(item.start) === "Today"
                         ? "urgency-today-card"
                         : getUrgencyLabel(item.start) === "This week"
                           ? "urgency-this-week-card"
                           : ""
-                      }`}
-                    key={item.id}
-                  >
-                    <div className="deadline-topline">
-                      <span
-                        className={`pill urgency-${getUrgencyLabel(item.start)
-                          .toLowerCase()
-                          .replace(" ", "-")}`}
-                      >
-                        {getUrgencyLabel(item.start)}
-                      </span>
-                    </div>
-
-                    <div className="deadline-title">{item.title}</div>
-                    <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
-                    <div className="deadline-countdown">{getCountdownText(item.start, now)}</div>
-
-                    {item.location ? (
-                      <div className="deadline-meta">{item.location}</div>
-                    ) : null}
-
-                    <div className="deadline-actions">
-                      <button
-                        className="done-button"
-                        onClick={() => toggleDeadlineDone(item.id)}
-                      >
-                        Mark done
-                      </button>
-
-                      {item.link ? (
-                        <a
-                          className="deadline-link"
-                          href={item.link}
-                          target="_blank"
-                          rel="noreferrer"
+                        }`}
+                      key={item.id}
+                    >
+                      <div className="deadline-topline">
+                        <span
+                          className={`pill urgency-${getUrgencyLabel(item.start)
+                            .toLowerCase()
+                            .replace(" ", "-")}`}
                         >
-                          Open in Google Calendar
-                        </a>
+                          {getUrgencyLabel(item.start)}
+                        </span>
+                      </div>
+
+                      <div className="deadline-title">{item.title}</div>
+                      <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
+                      <div className="deadline-countdown">{getCountdownText(item.start, now)}</div>
+
+                      {item.location ? (
+                        <div className="deadline-meta">{item.location}</div>
                       ) : null}
+
+                      <div className="deadline-actions">
+                        <button
+                          className="done-button"
+                          onClick={() => toggleDeadlineDone(item.id)}
+                        >
+                          Mark done
+                        </button>
+
+                        {item.link ? (
+                          <a
+                            className="deadline-link"
+                            href={item.link}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            Open in Google Calendar
+                          </a>
+                        ) : null}
+                      </div>
                     </div>
+                  ))}
+                </div>
+              )}
+              {visiblePastDueDeadlines.length > 0 && (
+                <>
+                  <div className="section-header">
+                    <h2>Past Due</h2>
+                    <p className="section-subtitle">
+                      Deadlines that have already passed and still need attention.
+                    </p>
                   </div>
-                ))}
-              </div>
+
+                  <div className="deadlines-grid">
+                    {visiblePastDueDeadlines.map((item) => (
+                      <div className="card deadline-card urgency-past-due-card" key={item.id}>
+                        <div className="deadline-topline">
+                          <span className="pill urgency-past-due">Past due</span>
+                        </div>
+
+                        <div className="deadline-title">{item.title}</div>
+                        <div className="deadline-date">{formatDeadlineDate(item.start)}</div>
+                        <div className="deadline-countdown">Due now or passed</div>
+
+                        {item.location ? (
+                          <div className="deadline-meta">{item.location}</div>
+                        ) : null}
+
+                        <div className="deadline-actions">
+                          <button
+                            className="done-button"
+                            onClick={() => toggleDeadlineDone(item.id)}
+                          >
+                            Mark done
+                          </button>
+
+                          {item.link ? (
+                            <a
+                              className="deadline-link"
+                              href={item.link}
+                              target="_blank"
+                              rel="noreferrer"
+                            >
+                              Open in Google Calendar
+                            </a>
+                          ) : null}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
               {visibleCompletedDeadlines.length > 0 && (
                 <>
                   <div className="section-header">
