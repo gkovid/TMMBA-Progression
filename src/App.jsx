@@ -11,8 +11,8 @@ const courseDetailsByNumber = Object.fromEntries(
 );
 const deadlineFilters = ["All", ...new Set(courseCatalog.map((course) => course.category)), "Other"];
 
-function getCourseFromTitle(title) {
-  const text = (title || "").toLowerCase();
+function getCourseFromEvent({ title = "", description = "", location = "" }) {
+  const text = [title, description, location].join(" ").toLowerCase();
 
   const matchedCourse = courseCatalog.find((course) =>
     course.matchKeywords.some((keyword) => text.includes(keyword.toLowerCase()))
@@ -188,41 +188,60 @@ export default function App() {
 
         const timeMin = new Date(calendarConfig.queryWindow.start).toISOString();
         const timeMax = new Date(calendarConfig.queryWindow.end).toISOString();
-        const params = new URLSearchParams({
-          key: GOOGLE_CALENDAR_API_KEY,
-          singleEvents: "true",
-          orderBy: "startTime",
-          timeMin,
-          timeMax,
-          maxResults: "8",
-        });
+        const allItems = [];
+        let nextPageToken = "";
 
-        const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
-          calendarConfig.calendarId
-        )}/events?${params.toString()}`;
+        do {
+          const params = new URLSearchParams({
+            key: GOOGLE_CALENDAR_API_KEY,
+            singleEvents: "true",
+            orderBy: "startTime",
+            timeMin,
+            timeMax,
+            maxResults: String(calendarConfig.maxResults || 50),
+          });
 
-        const res = await fetch(url);
-        if (!res.ok) {
-          throw new Error(`Calendar API error: ${res.status}`);
-        }
+          if (nextPageToken) {
+            params.set("pageToken", nextPageToken);
+          }
 
-        const data = await res.json();
-        const items = (data.items || [])
+          const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(
+            calendarConfig.calendarId
+          )}/events?${params.toString()}`;
+
+          const res = await fetch(url);
+          if (!res.ok) {
+            throw new Error(`Calendar API error: ${res.status}`);
+          }
+
+          const data = await res.json();
+          allItems.push(...(data.items || []));
+          nextPageToken = data.nextPageToken || "";
+        } while (nextPageToken);
+
+        const items = allItems
           .filter((item) => item.start?.dateTime || item.start?.date)
           .map((item) => {
-            const start = item.start.dateTime || `${item.start.date}T11:59:00`;
+            const start = item.start.dateTime || `${item.start.date}T23:59:00`;
             const title = item.summary || "Untitled assignment";
+            const description = item.description || "";
+            const location = item.location || "";
 
             return {
               id: item.id,
               title,
               start,
-              location: item.location || "",
-              description: item.description || "",
+              location,
+              description,
               link: item.htmlLink || "",
-              courseCategory: getCourseFromTitle(title),
+              courseCategory: getCourseFromEvent({
+                title,
+                description,
+                location,
+              }),
             };
-          });
+          })
+          .sort((a, b) => new Date(a.start) - new Date(b.start));
 
         setDeadlines(items);
       } catch (err) {
